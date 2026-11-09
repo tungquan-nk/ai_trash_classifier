@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoSort AI - Hệ thống Phân loại & Quản lý Rác Thông Minh</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       NAVBAR (HEADER)
+       ══════════════════════════════════════════════════════════════════ -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="brand-logo">
+        <div class="brand-icon">♻️</div>
+        <span>EcoSort AI</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="index.html" class="nav-link active">🏠 Trang chủ</a>
+        <a href="management.html" class="nav-link">📊 Quản lý</a>
+        <a href="account.html" class="nav-link">👤 Tài khoản</a>
+      </div>
+
+      <div class="nav-user">
+        <a href="account.html" class="user-badge-pill" id="navUserPill">
+          <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=180&q=80" alt="Avatar" class="user-avatar-mini" id="navUserAvatar">
+          <span class="user-name-mini" id="navUserName">Liam Roderk</span>
+          <span class="user-points-tag" id="navUserPoints">652 pts</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       MAIN CONTENT
+       ══════════════════════════════════════════════════════════════════ -->
+  <main class="app-container">
+
+    <!-- Guest Mode Notice Banner (Nếu chưa đăng nhập) -->
+    <div id="guestNotice" style="display: none; background: #FFFBEB; border: 1px solid #FCD34D; border-radius: var(--radius-lg); padding: 12px 18px; margin-bottom: 20px; font-size: 0.88rem; color: #92400E; display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span>💡</span>
+        <span>Bạn đang ở <strong>chế độ Khách</strong>: Vẫn phân loại được rác nhưng lịch sử chỉ lưu tạm trên trình duyệt này.</span>
+      </div>
+      <a href="account.html" style="color: #00874C; font-weight: 700; text-decoration: underline;">Đăng ký / Đăng nhập →</a>
+    </div>
+
+    <div class="hero-grid">
+
+      <!-- ── CỘT TRÁI: TỔNG QUAN, CHỈ SỐ MÔI TRƯỜNG & TÍNH NĂNG ── -->
+      <section class="overview-column">
+
+        <!-- Greeting Bar -->
+        <div class="greeting-bar">
+          <div class="greeting-profile">
+            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=180&q=80" alt="Liam Roderk" class="greeting-avatar" id="heroAvatar">
+            <div class="greeting-text">
+              <span>Xin chào,</span>
+              <h2 id="heroGreetingName">Liam Roderk</h2>
+            </div>
+          </div>
+          <div class="icon-menu-dots" title="Tùy chọn nhanh" onclick="window.location.href='account.html'">::</div>
+        </div>
+
+        <!-- 800g CO2 Saved Giant Stat Card (Mockup Middle Screen) -->
+        <div class="stat-card-hero">
+          <div class="stat-hero-number" id="heroCo2Saved">800g</div>
+          <div class="stat-hero-sublabel">CO₂ đã tiết kiệm</div>
+
+          <div class="stat-split-row">
+            <div class="stat-split-col">
+              <div class="stat-split-title">Điểm tích lũy</div>
+              <div class="stat-split-val" id="heroPoints">652</div>
+            </div>
+            <div class="stat-split-divider"></div>
+            <div class="stat-split-col">
+              <div class="stat-split-title">Đã tái chế</div>
+              <div class="stat-split-val" id="heroRecycledItems">165</div>
+            </div>
+            <div class="stat-split-divider"></div>
+            <div class="stat-split-col">
+              <div class="stat-split-title">Tiết kiệm</div>
+              <div class="stat-split-val val-green" id="heroSavings">245.000 đ</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Promo Feature Card: Earn Points For Discarded Trash -->
+        <div class="promo-card">
+          <div class="promo-info">
+            <h3>Earn Points For Discarded Trash</h3>
+            <p>Phân loại rác nhận điểm thưởng cùng bảo vệ hệ sinh thái</p>
+            <a href="management.html" class="promo-link">Bắt đầu ngay →</a>
+          </div>
+          <div class="promo-graphic">🗑️</div>
+        </div>
+
+        <!-- Waste Delivery Green Card -->
+        <div class="delivery-card" id="btnOpenDeliveryModal">
+          <div class="delivery-text">
+            <h3>Waste Delivery</h3>
+            <p>Đặt lịch thu gom & bán ve chai tại nhà</p>
+          </div>
+          <div class="delivery-arrow">📦</div>
+        </div>
+
+        <!-- Recent Items Strip (Vật phẩm đã phân loại gần đây) -->
+        <div style="margin-top: 24px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+            <h3 style="font-size: 1.05rem; font-weight: 700;">Vật phẩm gần đây</h3>
+            <a href="management.html" style="font-size: 0.85rem; color: var(--primary); font-weight: 600;">Xem tất cả →</a>
+          </div>
+          <div class="items-horizontal-scroll" id="recentItemsScroll">
+            <!-- Rendered dynamically by JS -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ── CỘT PHẢI: AI SCANNER VIEW & KẾT QUẢ PHÂN LOẠI (SCREEN 3) ── -->
+      <section class="scanner-column">
+
+        <div class="scanner-container">
+
+          <div class="scanner-header">
+            <h2><span>📷</span> Scan rác bằng AI</h2>
+            <div class="icon-menu-dots" title="Chuyển chế độ camera" id="btnFlipCamera">🔄</div>
+          </div>
+
+          <!-- Tab chuyển chế độ Camera / Tải ảnh -->
+          <div class="scan-tabs">
+            <button class="scan-tab active" id="tabCamera">
+              <span>📹</span> Chụp trực tiếp
+            </button>
+            <button class="scan-tab" id="tabUpload">
+              <span>📁</span> Tải ảnh lên
+            </button>
+          </div>
+
+          <!-- Camera Viewfinder with Green Corners & Animated Laser Beam -->
+          <div class="viewfinder-wrapper" id="viewfinder">
+            <!-- 4 Green Rounded Corner Brackets (Mockup Screen 3) -->
+            <div class="scan-corner corner-tl"></div>
+            <div class="scan-corner corner-tr"></div>
+            <div class="scan-corner corner-bl"></div>
+            <div class="scan-corner corner-br"></div>
+
+            <!-- Glowing Laser Beam -->
+            <div class="laser-beam" id="laserBeam"></div>
+
+            <!-- Video Camera Stream -->
+            <video id="cameraVideo" autoplay playsinline muted></video>
+
+            <!-- Image Preview (Khi tải ảnh hoặc chụp) -->
+            <img id="previewImage" alt="Trash Preview">
+
+            <!-- Default Dropzone Overlay -->
+            <div class="dropzone-overlay" id="dropzoneOverlay">
+              <div class="dropzone-icon">📷</div>
+              <div class="dropzone-text">Bật Camera hoặc Kéo thả ảnh rác vào đây</div>
+              <div class="dropzone-sub">Hỗ trợ nhận diện 6 loại: Nhựa, Kim loại, Giấy, Carton, Thủy tinh, Rác khác</div>
+              <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            </div>
+          </div>
+
+          <!-- Status Bar -->
+          <div class="scanner-status" id="scannerStatus"></div>
+
+          <!-- Scanner Controls -->
+          <div class="scanner-controls">
+            <button class="btn-scan-action btn-scan-primary" id="btnStartCamera">
+              <span>▶️</span> Bật Camera
+            </button>
+            <button class="btn-scan-action btn-scan-primary" id="btnCapture" style="display: none;">
+              <span>📸</span> Chụp & Phân loại
+            </button>
+            <button class="btn-scan-action btn-scan-secondary" id="btnUploadFile">
+              <span>📤</span> Chọn file ảnh
+            </button>
+          </div>
+
+          <!-- Preset Samples for 1-Click Fast Test -->
+          <div class="presets-section">
+            <div class="presets-label">Thử nghiệm nhanh mẫu rác:</div>
+            <div class="preset-chips" id="presetChips">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- ── DETECTION RESULT CARD (SCREEN 3 RESULT SHEET) ── -->
+          <div class="result-card-container" id="resultCard">
+
+            <div class="result-main-row">
+              <div class="result-title-group">
+                <h3 id="resTitle">Plastic Bottle <span>♻️</span></h3>
+                <div class="result-subtitle" id="resGuidelineShort">Place item in green bag</div>
+              </div>
+              <div class="result-points-box">
+                <div class="result-points-label">Điểm thưởng</div>
+                <div class="result-points-num" id="resPoints">+2</div>
+              </div>
+            </div>
+
+            <!-- Badges & Values -->
+            <div class="result-tags-row">
+              <span class="result-tag tag-recycle-yes" id="resRecycleBadge">
+                <span>✅</span> Có thể tái chế & Bán đồng nát
+              </span>
+              <span class="result-tag tag-money" id="resPriceBadge">
+                <span>💰</span> Tiết kiệm: +500 đ
+              </span>
+              <span class="result-tag tag-co2" id="resCo2Badge">
+                <span>🌿</span> +45g CO₂
+              </span>
+              <span class="result-tag" style="background: #F1F5F9; color: #475569;" id="resConfidenceBadge">
+                <span>🎯</span> Độ tin cậy: 98.4%
+              </span>
+            </div>
+
+            <!-- Guidelines Details -->
+            <div class="result-guideline" id="resFullGuideline">
+              Súc sạch cặn nước bên trong, tháo nắp nhựa và đè bẹp để tiết kiệm diện tích túi chứa. Cho vào túi tái chế màu xanh.
+            </div>
+
+            <!-- Big Green Button: Add To Recycle Bag (Usecase 7) -->
+            <button class="btn-add-recycle-bag" id="btnAddRecycleBag">
+              <span>♻️</span> Add To Recycle Bag (Lưu lại phiên)
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       FLOATING BOTTOM NAVIGATION DOCK (MOCKUP ACCENT)
+       ══════════════════════════════════════════════════════════════════ -->
+  <div class="bottom-dock">
+    <a href="index.html" class="dock-item active" title="Trang chủ">🏠</a>
+    <a href="#viewfinder" class="dock-item dock-item-scan" title="Quét rác AI" onclick="document.getElementById('viewfinder').scrollIntoView({behavior: 'smooth'});">♻️</a>
+    <a href="management.html" class="dock-item" title="Quản lý & Bộ sưu tập">📊</a>
+    <a href="account.html" class="dock-item" title="Tài khoản">👤</a>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       MODAL: WASTE DELIVERY (ĐẶT LỊCH THU GOM TẠI NHÀ)
+       ══════════════════════════════════════════════════════════════════ -->
+  <div id="deliveryModal" style="display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #ffffff; border-radius: var(--radius-xl); max-width: 480px; width: 100%; padding: 28px; box-shadow: var(--shadow-lg);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+        <h3 style="font-size: 1.25rem; font-weight: 800;">📦 Waste Delivery - Thu gom tại nhà</h3>
+        <button id="btnCloseDeliveryModal" style="font-size: 1.3rem; color: #64748B;">✖</button>
+      </div>
+      <p style="font-size: 0.88rem; color: #64748B; margin-bottom: 18px;">
+        Đội ngũ EcoSort sẽ đến tận nhà thu mua phế liệu (chai nhựa, lon nhôm, bìa carton) và cộng tiền trực tiếp vào tài khoản của bạn!
+      </p>
+      <div style="display: grid; gap: 12px; margin-bottom: 20px;">
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Địa chỉ thu gom:</label>
+          <input type="text" id="deliveryAddress" value="Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội" style="width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.9rem;">
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Thời gian mong muốn:</label>
+          <input type="datetime-local" id="deliveryTime" style="width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.9rem;">
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Ước tính khối lượng phế liệu:</label>
+          <select style="width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.9rem;">
+            <option>Khoảng 1 - 5 kg (Túi vừa)</option>
+            <option>Khoảng 5 - 15 kg (Thùng lớn)</option>
+            <option>Trên 15 kg (Nhiều bao tải)</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-add-recycle-bag" id="btnSubmitDelivery" style="padding: 12px 20px; font-size: 0.95rem;">
+        🚀 Gửi yêu cầu thu gom
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast Notice -->
+  <div class="toast-notice" id="toastNotice">
+    <span id="toastIcon">✅</span>
+    <span id="toastMsg">Thao tác thành công!</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/store.js"></script>
+  <script src="js/scanner.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      // ── DOM Elements ──
+      const heroCo2Saved = document.getElementById('heroCo2Saved');
+      const heroPoints = document.getElementById('heroPoints');
+      const heroRecycledItems = document.getElementById('heroRecycledItems');
+      const heroSavings = document.getElementById('heroSavings');
+      const heroGreetingName = document.getElementById('heroGreetingName');
+      const heroAvatar = document.getElementById('heroAvatar');
+      const navUserName = document.getElementById('navUserName');
+      const navUserAvatar = document.getElementById('navUserAvatar');
+      const navUserPoints = document.getElementById('navUserPoints');
+      const guestNotice = document.getElementById('guestNotice');
+
+      const videoEl = document.getElementById('cameraVideo');
+      const previewImgEl = document.getElementById('previewImage');
+      const dropzoneOverlay = document.getElementById('dropzoneOverlay');
+      const laserBeam = document.getElementById('laserBeam');
+      const scannerStatus = document.getElementById('scannerStatus');
+      const fileInput = document.getElementById('fileInput');
+
+      const btnStartCamera = document.getElementById('btnStartCamera');
+      const btnCapture = document.getElementById('btnCapture');
+      const btnUploadFile = document.getElementById('btnUploadFile');
+      const btnFlipCamera = document.getElementById('btnFlipCamera');
+
+      const tabCamera = document.getElementById('tabCamera');
+      const tabUpload = document.getElementById('tabUpload');
+
+      const presetChips = document.getElementById('presetChips');
+      const recentItemsScroll = document.getElementById('recentItemsScroll');
+
+      const resultCard = document.getElementById('resultCard');
+      const resTitle = document.getElementById('resTitle');
+      const resGuidelineShort = document.getElementById('resGuidelineShort');
+      const resPoints = document.getElementById('resPoints');
+      const resRecycleBadge = document.getElementById('resRecycleBadge');
+      const resPriceBadge = document.getElementById('resPriceBadge');
+      const resCo2Badge = document.getElementById('resCo2Badge');
+      const resConfidenceBadge = document.getElementById('resConfidenceBadge');
+      const resFullGuideline = document.getElementById('resFullGuideline');
+      const btnAddRecycleBag = document.getElementById('btnAddRecycleBag');
+
+      const toastNotice = document.getElementById('toastNotice');
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+
+      // ── Toast Utility ──
+      function showToast(message, type = 'success') {
+        toastMsg.textContent = message;
+        toastIcon.textContent = type === 'success' ? '✅' : (type === 'warning' ? '⚠️' : 'ℹ️');
+        toastNotice.className = `toast-notice show ${type}`;
+        setTimeout(() => {
+          toastNotice.classList.remove('show');
+        }, 3200);
+      }
+
+      // ── Khởi tạo EcoScanner ──
+      const scanner = new EcoScanner({
+        videoEl: videoEl,
+        previewImgEl: previewImgEl,
+        laserBeamEl: laserBeam,
+        onStatusChange: (msg, state) => {
+          scannerStatus.textContent = msg;
+          scannerStatus.className = `scanner-status show ${state}`;
+        },
+        onClassified: (res) => {
+          renderResultCard(res);
+        }
+      });
+
+      // ── Render Kết Quả Phân Loại (Screen 3) ──
+      let activeResult = null;
+      function renderResultCard(res) {
+        activeResult = res;
+        dropzoneOverlay.style.display = 'none';
+
+        resTitle.innerHTML = `${res.enName} <span style="font-size: 1.2rem;">${res.icon}</span>`;
+        resGuidelineShort.textContent = res.bagColor;
+        resPoints.textContent = `+${res.points}`;
+
+        if (res.recyclable) {
+          resRecycleBadge.className = 'result-tag tag-recycle-yes';
+          resRecycleBadge.innerHTML = '<span>✅</span> Có thể tái chế & Bán ve chai';
+          resPriceBadge.style.display = 'inline-flex';
+          resPriceBadge.innerHTML = `<span>💰</span> Tiết kiệm: +${res.formattedPrice}`;
+          resCo2Badge.style.display = 'inline-flex';
+          resCo2Badge.innerHTML = `<span>🌿</span> +${res.co2Grams}g CO₂`;
+        } else {
+          resRecycleBadge.className = 'result-tag tag-recycle-no';
+          resRecycleBadge.innerHTML = '<span>❌</span> Không thể tái chế (Bỏ thùng rác)';
+          resPriceBadge.style.display = 'none';
+          resCo2Badge.style.display = 'none';
+        }
+
+        resConfidenceBadge.innerHTML = `<span>🎯</span> AI ResNet-18: ${res.confidence}%`;
+        resFullGuideline.textContent = res.guideline;
+
+        resultCard.classList.add('active');
+        resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      // ── Cập nhật Giao diện Người dùng & Chỉ số ──
+      function updateUserData() {
+        const user = EcoStore.getUser();
+        const isGuest = EcoStore.isGuest();
+
+        if (isGuest) {
+          guestNotice.style.display = 'flex';
+          heroGreetingName.textContent = 'Khách vãng lai';
+          navUserName.textContent = 'Khách';
+          navUserPoints.textContent = '0 pts';
+          if (heroAvatar) heroAvatar.src = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=180&q=80';
+        } else {
+          guestNotice.style.display = 'none';
+          heroGreetingName.textContent = user.name || 'Liam Roderk';
+          navUserName.textContent = user.name || 'Liam Roderk';
+          navUserPoints.textContent = `${user.points || 652} pts`;
+          if (user.avatar) {
+            heroAvatar.src = user.avatar;
+            navUserAvatar.src = user.avatar;
+          }
+        }
+
+        // Cập nhật stats
+        const savingsData = EcoStore.calculateSavingsByPeriod('all');
+        heroCo2Saved.textContent = savingsData.formattedCO2;
+        heroPoints.textContent = user.points || savingsData.totalPoints || 652;
+        heroRecycledItems.textContent = user.itemsRecycled || savingsData.recyclableCount || 165;
+        heroSavings.textContent = EcoStore.formatMoney(user.totalSavings || savingsData.totalSavings || 245000);
+
+        renderRecentItems();
+      }
+
+      // ── Render Recent Scanned Items (Mockup Screen 1 bottom) ──
+      function renderRecentItems() {
+        const history = EcoStore.getHistory();
+        const recents = history.slice(0, 6);
+
+        if (recents.length === 0) {
+          recentItemsScroll.innerHTML = '<div style="color: #94A3B8; font-size: 0.85rem; padding: 10px;">Chưa có vật phẩm nào được quét. Hãy bắt đầu quét ngay!</div>';
+          return;
+        }
+
+        let html = '';
+        recents.forEach(item => {
+          const classInfo = EcoStore.classes[item.type] || EcoStore.classes.trash;
+          html += `
+            <div class="item-card-mini" onclick="window.location.href='management.html'">
+              <div class="item-thumb-wrapper">
+                <img src="${item.image || 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&w=300&q=80'}" alt="${item.name}">
+              </div>
+              <div class="item-mini-name">${item.name}</div>
+              <div class="item-mini-sub">${classInfo.icon} ${item.recyclable ? '+' + item.value + 'đ' : 'Rác thải'}</div>
+            </div>
+          `;
+        });
+        recentItemsScroll.innerHTML = html;
+      }
+
+      // ── Render Sample Preset Chips ──
+      function renderPresets() {
+        let html = '';
+        PRESET_SAMPLES.forEach((p, idx) => {
+          html += `
+            <button class="preset-chip" onclick="handlePresetClick(${idx})">
+              <span>${p.icon}</span> ${p.label}
+            </button>
+          `;
+        });
+        presetChips.innerHTML = html;
+      }
+
+      window.handlePresetClick = function(index) {
+        dropzoneOverlay.style.display = 'none';
+        scanner.loadPreset(index);
+      };
+
+      // ── Nút Lưu phiên phân loại (Usecase 7) ──
+      btnAddRecycleBag.addEventListener('click', () => {
+        if (!activeResult) return;
+
+        const isGuest = EcoStore.isGuest();
+        const savedSession = EcoStore.addSession({
+          name: activeResult.name,
+          type: activeResult.type,
+          confidence: parseFloat(activeResult.confidence),
+          value: activeResult.avgPrice,
+          co2: activeResult.co2Grams,
+          points: activeResult.points,
+          image: activeResult.image
+        });
+
+        if (isGuest) {
+          showToast(`Đã lưu phiên ${savedSession.id} vào bộ nhớ máy khách! Tạo tài khoản để lưu vĩnh viễn.`, 'warning');
+        } else {
+          showToast(`Đã thêm vào Túi Tái Chế! +${activeResult.points} điểm thưởng, +${activeResult.formattedPrice}.`, 'success');
+        }
+
+        updateUserData();
+      });
+
+      // ── Controls Camera & Upload ──
+      btnStartCamera.addEventListener('click', async () => {
+        dropzoneOverlay.style.display = 'none';
+        const ok = await scanner.startCamera();
+        if (ok) {
+          btnStartCamera.style.display = 'none';
+          btnCapture.style.display = 'inline-flex';
+        }
+      });
+
+      btnCapture.addEventListener('click', () => {
+        const capturedImg = scanner.captureImage();
+        if (capturedImg) {
+          scanner.classifyImage(capturedImg);
+          btnStartCamera.style.display = 'inline-flex';
+          btnCapture.style.display = 'none';
+        }
+      });
+
+      btnFlipCamera.addEventListener('click', () => {
+        scanner.toggleFacingMode();
+      });
+
+      btnUploadFile.addEventListener('click', () => {
+        fileInput.click();
+      });
+
+      dropzoneOverlay.addEventListener('click', () => {
+        fileInput.click();
+      });
+
+      fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          dropzoneOverlay.style.display = 'none';
+          try {
+            const dataUrl = await scanner.handleFileUpload(file);
+            scanner.classifyImage(dataUrl);
+          } catch (err) {
+            console.error(err);
+          }
+        }
+      });
+
+      // Tabs Switcher
+      tabCamera.addEventListener('click', () => {
+        tabCamera.classList.add('active');
+        tabUpload.classList.remove('active');
+        btnStartCamera.click();
+      });
+
+      tabUpload.addEventListener('click', () => {
+        tabUpload.classList.add('active');
+        tabCamera.classList.remove('active');
+        scanner.stopCamera();
+        dropzoneOverlay.style.display = 'flex';
+        previewImgEl.style.display = 'none';
+        fileInput.click();
+      });
+
+      // ── Delivery Modal ──
+      const deliveryModal = document.getElementById('deliveryModal');
+      const btnOpenDeliveryModal = document.getElementById('btnOpenDeliveryModal');
+      const btnCloseDeliveryModal = document.getElementById('btnCloseDeliveryModal');
+      const btnSubmitDelivery = document.getElementById('btnSubmitDelivery');
+
+      btnOpenDeliveryModal.addEventListener('click', () => {
+        deliveryModal.style.display = 'flex';
+        const now = new Date();
+        now.setHours(now.getHours() + 2);
+        document.getElementById('deliveryTime').value = now.toISOString().slice(0, 16);
+      });
+
+      btnCloseDeliveryModal.addEventListener('click', () => {
+        deliveryModal.style.display = 'none';
+      });
+
+      deliveryModal.addEventListener('click', (e) => {
+        if (e.target === deliveryModal) deliveryModal.style.display = 'none';
+      });
+
+      btnSubmitDelivery.addEventListener('click', () => {
+        deliveryModal.style.display = 'none';
+        showToast('Đã tiếp nhận yêu cầu thu gom tận nơi! Nhân viên sẽ liên hệ với bạn trong 15 phút.', 'success');
+      });
+
+      // ── Khởi chạy ban đầu ──
+      updateUserData();
+      renderPresets();
+      EcoStore.subscribe(() => updateUserData());
+
+    })();
+  </script>
+</body>
+</html>

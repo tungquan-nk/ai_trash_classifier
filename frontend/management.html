@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý & Bộ sưu tập - EcoSort AI</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Management Specific Styling */
+    .filter-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-xl);
+      padding: 20px 24px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-light);
+      margin-bottom: 24px;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr auto;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 16px 10px 38px;
+      border-radius: var(--radius-full);
+      border: 1.5px solid var(--border);
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .select-filter {
+      padding: 10px 16px;
+      border-radius: var(--radius-full);
+      border: 1.5px solid var(--border);
+      font-size: 0.88rem;
+      background: #ffffff;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* History Table */
+    .table-container {
+      background: var(--card-bg);
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-light);
+      overflow-x: auto;
+    }
+
+    .custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .custom-table th {
+      padding: 12px 16px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .custom-table td {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 0.88rem;
+      vertical-align: middle;
+    }
+
+    .custom-table tbody tr:hover {
+      background: var(--bg);
+    }
+
+    .item-cell-profile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .item-cell-img {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: var(--bg-subtle);
+    }
+
+    .item-cell-text h4 {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 2px;
+    }
+
+    .item-cell-text span {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .action-btn-circle {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--bg-subtle);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    .action-btn-circle:hover {
+      background: var(--border);
+      color: var(--text-main);
+    }
+
+    .action-btn-delete:hover {
+      background: var(--danger-light);
+      color: var(--danger);
+    }
+
+    @media (max-width: 868px) {
+      .filter-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       NAVBAR (HEADER)
+       ══════════════════════════════════════════════════════════════════ -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="brand-logo">
+        <div class="brand-icon">♻️</div>
+        <span>EcoSort AI</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">🏠 Trang chủ</a>
+        <a href="management.html" class="nav-link active">📊 Quản lý</a>
+        <a href="account.html" class="nav-link">👤 Tài khoản</a>
+      </div>
+
+      <div class="nav-user">
+        <a href="account.html" class="user-badge-pill">
+          <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=180&q=80" alt="Avatar" class="user-avatar-mini" id="navUserAvatar">
+          <span class="user-name-mini" id="navUserName">Liam Roderk</span>
+          <span class="user-points-tag" id="navUserPoints">652 pts</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       MAIN CONTENT (SCREEN 1 - MY COLLECTIONS & MANAGEMENT)
+       ══════════════════════════════════════════════════════════════════ -->
+  <main class="app-container">
+
+    <!-- Guest Notice -->
+    <div id="guestNotice" style="display: none; background: #FFFBEB; border: 1px solid #FCD34D; border-radius: var(--radius-lg); padding: 12px 18px; margin-bottom: 20px; font-size: 0.88rem; color: #92400E; display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span>💡</span>
+        <span>Bạn đang xem lịch sử ở <strong>chế độ Khách</strong> (dữ liệu lưu trên máy). Hãy đăng ký tài khoản để đồng bộ vĩnh viễn!</span>
+      </div>
+      <a href="account.html" style="color: #00874C; font-weight: 700; text-decoration: underline;">Đăng nhập / Đăng ký →</a>
+    </div>
+
+    <!-- Header Section (My Collections) -->
+    <div class="collections-header">
+      <div>
+        <h1>My Collections</h1>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 4px;">
+          Theo dõi lịch sử phân loại, thống kê vật phẩm và quản lý rác tái chế
+        </p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-scan-action btn-scan-secondary" id="btnExportCSV" title="Xuất dữ liệu CSV">
+          <span>📥</span> Xuất CSV
+        </button>
+        <button class="btn-scan-action btn-scan-primary" onclick="window.location.href='index.html'">
+          <span>📸</span> Quét rác mới
+        </button>
+      </div>
+    </div>
+
+    <!-- ── CALENDAR DATE STRIP (MOCKUP SCREEN 1: 18, 19, 20 June with Checkmarks) ── -->
+    <div class="date-strip-wrapper">
+      <div class="date-strip" id="dateStrip">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- ── RECYCLED SUMMARY & MONTH FILTER ── -->
+    <div class="summary-strip">
+      <div class="recycled-count-text" id="recycledCountSummary">
+        18 items recycled
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 0.85rem; color: var(--text-muted);">Tháng:</span>
+        <button class="month-dropdown-btn">
+          <span>June 2026</span>
+          <span>⌵</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── SMOOTH GREEN WAVE LINE CHART (MOCKUP SCREEN 1) ── -->
+    <div class="wave-chart-container">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+        <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">
+          Xu hướng tái chế theo thời gian
+        </span>
+        <span style="font-size: 0.82rem; color: var(--primary); font-weight: 600;">
+          +24% so với tháng trước
+        </span>
+      </div>
+
+      <!-- Wave SVG Chart -->
+      <svg class="wave-chart-svg" viewBox="0 0 600 140" fill="none" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="waveGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#00C471" stop-opacity="0.32" />
+            <stop offset="100%" stop-color="#00C471" stop-opacity="0.0" />
+          </linearGradient>
+        </defs>
+
+        <!-- Vertical grid lines -->
+        <line x1="50" y1="0" x2="50" y2="140" stroke="#F1F5F9" stroke-width="1.5" />
+        <line x1="150" y1="0" x2="150" y2="140" stroke="#F1F5F9" stroke-width="1.5" />
+        <line x1="250" y1="0" x2="250" y2="140" stroke="#F1F5F9" stroke-width="1.5" />
+        <line x1="350" y1="0" x2="350" y2="140" stroke="#F1F5F9" stroke-width="1.5" />
+        <line x1="450" y1="0" x2="450" y2="140" stroke="#F1F5F9" stroke-width="1.5" />
+        <line x1="550" y1="0" x2="550" y2="140" stroke="#F1F5F9" stroke-width="1.5" />
+
+        <!-- Area fill under the wave -->
+        <path d="M 0 100 Q 50 30, 100 80 T 200 40 T 300 95 T 400 35 T 500 70 T 600 20 L 600 140 L 0 140 Z" fill="url(#waveGradient)" />
+
+        <!-- Green Wave Stroke -->
+        <path d="M 0 100 Q 50 30, 100 80 T 200 40 T 300 95 T 400 35 T 500 70 T 600 20" stroke="#00C471" stroke-width="3" stroke-linecap="round" fill="none" />
+
+        <!-- Highlight Point Dots -->
+        <circle cx="200" cy="40" r="5" fill="#00C471" stroke="#ffffff" stroke-width="2" />
+        <circle cx="400" cy="35" r="5" fill="#00C471" stroke="#ffffff" stroke-width="2" />
+        <circle cx="600" cy="20" r="5" fill="#00C471" stroke="#ffffff" stroke-width="2" />
+      </svg>
+    </div>
+
+    <!-- ── TWO QUICK ACTION CARDS (MOCKUP SCREEN 1: "Add More" & "Scan and collect") ── -->
+    <div class="action-cards-grid">
+      <!-- Add More Card -->
+      <div class="action-card-add" id="btnOpenAddModal">
+        <div class="add-circle-icon">+</div>
+        <div class="action-card-title">Add More</div>
+        <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">Thêm thủ công phiên rác</div>
+      </div>
+
+      <!-- Scan and Collect Card -->
+      <div class="action-card-scan" onclick="window.location.href='index.html'">
+        <div class="scan-box-icon">📷</div>
+        <div class="action-card-title">Scan and collect</div>
+        <div style="font-size: 0.78rem; color: rgba(255,255,255,0.85); margin-top: 2px;">Quét nhanh camera AI</div>
+      </div>
+    </div>
+
+    <!-- ── ITEMS HORIZONTAL SCROLL LIST (MOCKUP SCREEN 1: "Items") ── -->
+    <div style="margin-bottom: 32px;">
+      <h3 class="items-section-title">Items</h3>
+      <div class="items-horizontal-scroll" id="collectionsItemsScroll">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- ── BỘ LỌC VÀ TÌM KIẾM CHI TIẾT (USECASE 8 & 13) ── -->
+    <div class="filter-card">
+      <div class="filter-grid">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="searchInput" placeholder="Tìm theo tên vật phẩm hoặc mã phiên (#ECO-10028)...">
+        </div>
+
+        <select class="select-filter" id="filterClass">
+          <option value="all">Tất cả loại rác (6 nhóm)</option>
+          <option value="plastic">🧴 Nhựa (Plastic)</option>
+          <option value="metal">🥫 Kim loại (Metal)</option>
+          <option value="cardboard">📦 Bìa carton (Cardboard)</option>
+          <option value="paper">📰 Giấy & Báo (Paper)</option>
+          <option value="glass">🍾 Thủy tinh (Glass)</option>
+          <option value="trash">🗑️ Rác sinh hoạt (Trash)</option>
+        </select>
+
+        <select class="select-filter" id="filterRecyclable">
+          <option value="all">Tất cả trạng thái</option>
+          <option value="yes">✅ Có thể tái chế / Bán</option>
+          <option value="no">❌ Không thể tái chế</option>
+        </select>
+
+        <button class="btn-scan-action btn-scan-secondary" id="btnResetFilters">
+          <span>🔄</span> Đặt lại
+        </button>
+      </div>
+    </div>
+
+    <!-- ── BẢNG LỊCH SỬ PHÂN LOẠI CHI TIẾT ── -->
+    <div class="table-container">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+        <h3 style="font-size: 1.1rem; font-weight: 700;">Danh sách phiên phân loại</h3>
+        <span style="font-size: 0.85rem; color: var(--text-muted);" id="tableCountLabel">Hiển thị 0 mục</span>
+      </div>
+
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Vật phẩm rác</th>
+            <th>Loại rác</th>
+            <th>Độ chính xác AI</th>
+            <th>Trạng thái tái chế</th>
+            <th>Giá trị ước tính</th>
+            <th>Thời gian</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody id="historyTableBody">
+          <!-- Rendered by JS -->
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       FLOATING BOTTOM NAVIGATION DOCK
+       ══════════════════════════════════════════════════════════════════ -->
+  <div class="bottom-dock">
+    <a href="index.html" class="dock-item" title="Trang chủ">🏠</a>
+    <a href="index.html" class="dock-item dock-item-scan" title="Quét rác AI">♻️</a>
+    <a href="management.html" class="dock-item active" title="Quản lý & Bộ sưu tập">📊</a>
+    <a href="account.html" class="dock-item" title="Tài khoản">👤</a>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       MODAL: CHI TIẾT PHIÊN PHÂN LOẠI
+       ══════════════════════════════════════════════════════════════════ -->
+  <div id="detailModal" style="display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #ffffff; border-radius: var(--radius-xl); max-width: 520px; width: 100%; padding: 28px; box-shadow: var(--shadow-lg);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+        <h3 style="font-size: 1.2rem; font-weight: 800;" id="modalTitle">Chi tiết phiên phân loại</h3>
+        <button id="btnCloseDetailModal" style="font-size: 1.3rem; color: #64748B;">✖</button>
+      </div>
+
+      <div style="width: 100%; height: 200px; border-radius: var(--radius-md); background: #F1F5F9; overflow: hidden; margin-bottom: 16px;">
+        <img id="modalImg" src="" alt="Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+        <div style="background: var(--bg-subtle); padding: 10px 14px; border-radius: var(--radius-sm);">
+          <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">MÃ PHIÊN</div>
+          <div style="font-weight: 700; color: var(--text-main);" id="modalCode">#ECO-10028</div>
+        </div>
+        <div style="background: var(--bg-subtle); padding: 10px 14px; border-radius: var(--radius-sm);">
+          <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">LOẠI RÁC</div>
+          <div style="font-weight: 700; color: var(--primary);" id="modalClass">Nhựa (Plastic)</div>
+        </div>
+        <div style="background: var(--bg-subtle); padding: 10px 14px; border-radius: var(--radius-sm);">
+          <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">ĐỘ CHÍNH XÁC AI</div>
+          <div style="font-weight: 700; color: var(--text-main);" id="modalConfidence">98.4%</div>
+        </div>
+        <div style="background: var(--bg-subtle); padding: 10px 14px; border-radius: var(--radius-sm);">
+          <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">GIÁ TRỊ TIẾT KIỆM</div>
+          <div style="font-weight: 700; color: #B45309;" id="modalSavings">500 đ</div>
+        </div>
+      </div>
+
+      <div style="background: var(--primary-lighter); border-left: 4px solid var(--primary); padding: 12px 14px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin-bottom: 20px;">
+        <div style="font-size: 0.8rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 4px;">📋 HƯỚNG DẪN XỬ LÝ QUY CHUẨN</div>
+        <div style="font-size: 0.85rem; color: #065F46;" id="modalGuideline">Súc sạch cặn nước...</div>
+      </div>
+
+      <button class="btn-scan-action btn-scan-secondary" id="btnCloseDetailBtn" style="width: 100%; justify-content: center;">
+        Đóng cửa sổ
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       MODAL: ADD MORE (THÊM PHIÊN RÁC THỦ CÔNG)
+       ══════════════════════════════════════════════════════════════════ -->
+  <div id="addModal" style="display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #ffffff; border-radius: var(--radius-xl); max-width: 480px; width: 100%; padding: 28px; box-shadow: var(--shadow-lg);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+        <h3 style="font-size: 1.2rem; font-weight: 800;">➕ Thêm phiên phân loại thủ công</h3>
+        <button id="btnCloseAddModal" style="font-size: 1.3rem; color: #64748B;">✖</button>
+      </div>
+
+      <div style="display: grid; gap: 14px; margin-bottom: 20px;">
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Tên vật phẩm:</label>
+          <input type="text" id="manualName" placeholder="VD: Vỏ lon bia, Hộp bánh carton..." style="width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.9rem;">
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Loại rác:</label>
+          <select id="manualClass" style="width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.9rem;">
+            <option value="plastic">🧴 Nhựa (Plastic)</option>
+            <option value="metal">🥫 Kim loại (Metal)</option>
+            <option value="cardboard">📦 Bìa carton (Cardboard)</option>
+            <option value="paper">📰 Giấy (Paper)</option>
+            <option value="glass">🍾 Thủy tinh (Glass)</option>
+            <option value="trash">🗑️ Rác khác (Trash)</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Số lượng / Món:</label>
+          <input type="number" id="manualQuantity" value="1" min="1" max="50" style="width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.9rem;">
+        </div>
+      </div>
+
+      <button class="btn-add-recycle-bag" id="btnSubmitManualAdd">
+        <span>💾</span> Lưu vào bộ sưu tập
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast Notice -->
+  <div class="toast-notice" id="toastNotice">
+    <span id="toastIcon">✅</span>
+    <span id="toastMsg">Thao tác thành công!</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/store.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      // ── DOM Elements ──
+      const navUserName = document.getElementById('navUserName');
+      const navUserAvatar = document.getElementById('navUserAvatar');
+      const navUserPoints = document.getElementById('navUserPoints');
+      const guestNotice = document.getElementById('guestNotice');
+      const dateStrip = document.getElementById('dateStrip');
+      const recycledCountSummary = document.getElementById('recycledCountSummary');
+      const collectionsItemsScroll = document.getElementById('collectionsItemsScroll');
+      const historyTableBody = document.getElementById('historyTableBody');
+      const tableCountLabel = document.getElementById('tableCountLabel');
+
+      const searchInput = document.getElementById('searchInput');
+      const filterClass = document.getElementById('filterClass');
+      const filterRecyclable = document.getElementById('filterRecyclable');
+      const btnResetFilters = document.getElementById('btnResetFilters');
+      const btnExportCSV = document.getElementById('btnExportCSV');
+
+      const detailModal = document.getElementById('detailModal');
+      const btnCloseDetailModal = document.getElementById('btnCloseDetailModal');
+      const btnCloseDetailBtn = document.getElementById('btnCloseDetailBtn');
+
+      const addModal = document.getElementById('addModal');
+      const btnOpenAddModal = document.getElementById('btnOpenAddModal');
+      const btnCloseAddModal = document.getElementById('btnCloseAddModal');
+      const btnSubmitManualAdd = document.getElementById('btnSubmitManualAdd');
+
+      const toastNotice = document.getElementById('toastNotice');
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+
+      function showToast(message, type = 'success') {
+        toastMsg.textContent = message;
+        toastIcon.textContent = type === 'success' ? '✅' : 'ℹ️';
+        toastNotice.className = `toast-notice show ${type}`;
+        setTimeout(() => toastNotice.classList.remove('show'), 3000);
+      }
+
+      // ── Render Calendar Date Strip (Mockup Screen 1: 18, 19, 20 June with Checkmark Circles) ──
+      let selectedDay = 20; // Default active day
+      function renderDateStrip() {
+        const days = [
+          { day: 16, month: 'June', hasRecycled: true },
+          { day: 17, month: 'June', hasRecycled: true },
+          { day: 18, month: 'June', hasRecycled: true },
+          { day: 19, month: 'June', hasRecycled: true },
+          { day: 20, month: 'June', hasRecycled: true },
+          { day: 21, month: 'June', hasRecycled: false },
+          { day: 22, month: 'June', hasRecycled: false }
+        ];
+
+        let html = '';
+        days.forEach(d => {
+          const isActive = d.day === selectedDay;
+          html += `
+            <div class="date-chip ${isActive ? 'active' : ''}" onclick="selectCalendarDay(${d.day})">
+              ${d.hasRecycled ? '<div class="date-check-icon">✓</div>' : '<div style="height: 28px;"></div>'}
+              <div class="date-chip-num">${d.day}</div>
+              <div class="date-chip-month">${d.month}</div>
+            </div>
+          `;
+        });
+        dateStrip.innerHTML = html;
+      }
+
+      window.selectCalendarDay = function(day) {
+        selectedDay = day;
+        renderDateStrip();
+        renderTable();
+      };
+
+      // ── Render Horizontal Items Scroll (Mockup Screen 1: Items) ──
+      function renderItemsScroll() {
+        const history = EcoStore.getHistory();
+        const displayItems = history.slice(0, 10);
+
+        let html = '';
+        displayItems.forEach(item => {
+          const classInfo = EcoStore.classes[item.type] || EcoStore.classes.trash;
+          html += `
+            <div class="item-card-mini" onclick="openDetailModal('${item.id}')" style="cursor: pointer;">
+              <div class="item-thumb-wrapper">
+                <img src="${item.image || 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&w=300&q=80'}" alt="${item.name}">
+              </div>
+              <div class="item-mini-name">${item.name}</div>
+              <div class="item-mini-sub">${classInfo.icon} ${item.recyclable ? '+' + item.value.toLocaleString() + 'đ' : 'Rác thải'}</div>
+            </div>
+          `;
+        });
+        collectionsItemsScroll.innerHTML = html;
+      }
+
+      // ── Render Bảng Lịch Sử (Filters & Search) ──
+      function renderTable() {
+        const history = EcoStore.getHistory();
+        const searchVal = searchInput.value.toLowerCase().trim();
+        const classVal = filterClass.value;
+        const recyclableVal = filterRecyclable.value;
+
+        const filtered = history.filter(item => {
+          // Search
+          if (searchVal) {
+            const matchName = item.name.toLowerCase().includes(searchVal);
+            const matchId = item.id.toLowerCase().includes(searchVal);
+            if (!matchName && !matchId) return false;
+          }
+          // Class
+          if (classVal !== 'all' && item.type !== classVal) {
+            return false;
+          }
+          // Recyclable
+          if (recyclableVal === 'yes' && !item.recyclable) return false;
+          if (recyclableVal === 'no' && item.recyclable) return false;
+
+          return true;
+        });
+
+        tableCountLabel.textContent = `Hiển thị ${filtered.length} / ${history.length} mục`;
+        recycledCountSummary.textContent = `${history.filter(h => h.recyclable).length} items recycled`;
+
+        if (filtered.length === 0) {
+          historyTableBody.innerHTML = `
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 36px; color: var(--text-muted);">
+                Không tìm thấy phiên phân loại phù hợp với bộ lọc.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        let html = '';
+        filtered.forEach(item => {
+          const classInfo = EcoStore.classes[item.type] || EcoStore.classes.trash;
+          html += `
+            <tr>
+              <td>
+                <div class="item-cell-profile">
+                  <img src="${item.image || 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&w=300&q=80'}" alt="" class="item-cell-img">
+                  <div class="item-cell-text">
+                    <h4>${item.name}</h4>
+                    <span>${item.id}</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="badge-category ${classInfo.badgeClass}">
+                  ${classInfo.icon} ${classInfo.name}
+                </span>
+              </td>
+              <td>
+                <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; color: var(--text-main);">
+                  <span>${item.confidence}%</span>
+                </div>
+              </td>
+              <td>
+                ${item.recyclable ? '<span style="color: var(--primary); font-weight: 700;">✅ Tái chế được</span>' : '<span style="color: var(--danger); font-weight: 700;">❌ Rác thải</span>'}
+              </td>
+              <td style="font-weight: 700; color: #B45309;">
+                ${item.recyclable ? '+' + (item.value || 0).toLocaleString('vi-VN') + ' đ' : '0 đ'}
+              </td>
+              <td style="color: var(--text-muted); font-size: 0.82rem;">
+                ${item.date}
+              </td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <button class="action-btn-circle" title="Xem chi tiết" onclick="openDetailModal('${item.id}')">👁️</button>
+                  <button class="action-btn-circle action-btn-delete" title="Xóa phiên" onclick="deleteHistoryItem('${item.id}')">🗑️</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        });
+
+        historyTableBody.innerHTML = html;
+      }
+
+      // ── Modal Chi tiết ──
+      window.openDetailModal = function(id) {
+        const history = EcoStore.getHistory();
+        const item = history.find(h => h.id === id);
+        if (!item) return;
+
+        const classInfo = EcoStore.classes[item.type] || EcoStore.classes.trash;
+
+        document.getElementById('modalTitle').textContent = item.name;
+        document.getElementById('modalCode').textContent = item.id;
+        document.getElementById('modalClass').textContent = `${classInfo.icon} ${classInfo.name}`;
+        document.getElementById('modalConfidence').textContent = `${item.confidence}%`;
+        document.getElementById('modalSavings').textContent = item.recyclable ? `${(item.value || 0).toLocaleString('vi-VN')} đ` : '0 đ';
+        document.getElementById('modalGuideline').textContent = classInfo.guideline;
+        document.getElementById('modalImg').src = item.image || 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&w=500&q=80';
+
+        detailModal.style.display = 'flex';
+      };
+
+      btnCloseDetailModal.addEventListener('click', () => detailModal.style.display = 'none');
+      btnCloseDetailBtn.addEventListener('click', () => detailModal.style.display = 'none');
+      detailModal.addEventListener('click', (e) => {
+        if (e.target === detailModal) detailModal.style.display = 'none';
+      });
+
+      // ── Xóa phiên ──
+      window.deleteHistoryItem = function(id) {
+        if (confirm(`Bạn có chắc chắn muốn xóa phiên phân loại ${id}?`)) {
+          EcoStore.deleteSession(id);
+          showToast(`Đã xóa phiên ${id}`);
+          renderTable();
+          renderItemsScroll();
+        }
+      };
+
+      // ── Modal Thêm thủ công ──
+      btnOpenAddModal.addEventListener('click', () => {
+        addModal.style.display = 'flex';
+      });
+
+      btnCloseAddModal.addEventListener('click', () => {
+        addModal.style.display = 'none';
+      });
+
+      addModal.addEventListener('click', (e) => {
+        if (e.target === addModal) addModal.style.display = 'none';
+      });
+
+      btnSubmitManualAdd.addEventListener('click', () => {
+        const name = document.getElementById('manualName').value.trim() || 'Vật phẩm tái chế thủ công';
+        const type = document.getElementById('manualClass').value;
+        const qty = parseInt(document.getElementById('manualQuantity').value, 10) || 1;
+
+        const classInfo = EcoStore.classes[type];
+
+        for (let i = 0; i < qty; i++) {
+          EcoStore.addSession({
+            name: name,
+            type: type,
+            confidence: 99.0,
+            value: classInfo.avgPrice,
+            co2: classInfo.co2Grams,
+            points: classInfo.points,
+            image: 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=300&q=80'
+          });
+        }
+
+        addModal.style.display = 'none';
+        showToast(`Đã thêm thành công ${qty} mục vào bộ sưu tập!`);
+        renderTable();
+        renderItemsScroll();
+      });
+
+      // ── Bộ lọc sự kiện ──
+      searchInput.addEventListener('input', renderTable);
+      filterClass.addEventListener('change', renderTable);
+      filterRecyclable.addEventListener('change', renderTable);
+      btnResetFilters.addEventListener('click', () => {
+        searchInput.value = '';
+        filterClass.value = 'all';
+        filterRecyclable.value = 'all';
+        renderTable();
+      });
+
+      // ── Xuất CSV ──
+      btnExportCSV.addEventListener('click', () => {
+        const history = EcoStore.getHistory();
+        let csvContent = 'data:text/csv;charset=utf-8,ID,Tên vật phẩm,Loại rác,Độ chính xác,Tái chế,Tiết kiệm (VNĐ),Thời gian\n';
+        history.forEach(h => {
+          csvContent += `"${h.id}","${h.name}","${h.type}","${h.confidence}%","${h.recyclable ? 'Có' : 'Không'}","${h.value || 0}","${h.date}"\n`;
+        });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `ecosort_history_${Date.now()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast('Đã xuất file CSV thành công!');
+      });
+
+      // ── User Data Sync ──
+      function syncUser() {
+        const user = EcoStore.getUser();
+        const isGuest = EcoStore.isGuest();
+
+        if (isGuest) {
+          guestNotice.style.display = 'flex';
+          navUserName.textContent = 'Khách';
+          navUserPoints.textContent = '0 pts';
+        } else {
+          guestNotice.style.display = 'none';
+          navUserName.textContent = user.name || 'Liam Roderk';
+          navUserPoints.textContent = `${user.points || 652} pts`;
+          if (user.avatar) navUserAvatar.src = user.avatar;
+        }
+      }
+
+      // Khởi tạo
+      syncUser();
+      renderDateStrip();
+      renderItemsScroll();
+      renderTable();
+      EcoStore.subscribe(() => {
+        syncUser();
+        renderTable();
+        renderItemsScroll();
+      });
+
+    })();
+  </script>
+</body>
+</html>
